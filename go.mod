@@ -1,3 +1,3 @@
-module github.com/zarte/comutil
+module comutil
 
 go 1.13
