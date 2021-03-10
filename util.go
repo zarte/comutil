@@ -20,16 +20,22 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
+	"unsafe"
 )
 
 
@@ -145,4 +151,85 @@ func Hmac256(content string, secret string) string {
 	h := hmac.New(sha256.New, key)
 	h.Write([]byte(content))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func Checkexist(path string) bool{
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	fmt.Println(err)
+	return false
+}
+
+
+func Curlv1(ourl string,data map[string]string, header map[string]string,dtype string) (string,error) {
+
+	reader := strings.NewReader("")
+
+	var mentype string
+	if dtype =="JSON" {
+		mentype = "POST"
+	}else{
+		mentype = dtype
+	}
+	if data!=nil {
+		if mentype == "POST"{
+			str, err := json.Marshal(data)
+			if err != nil {
+				fmt.Println("json.Marshal failed:", err)
+				return "",err
+			}
+			reader = strings.NewReader(string(str))
+		} else if mentype== "GET"{
+			params := url.Values{}
+			parseURL, err := url.Parse(ourl)
+			if err != nil {
+				log.Println("err")
+			}
+			for key,val := range data {
+				params.Set(key, val)
+			}
+			//如果参数中有中文参数,这个方法会进行URLEncode
+			parseURL.RawQuery = params.Encode()
+			ourl = parseURL.String()
+		}
+
+	}
+	//fmt.Println(ourl)
+	// request, err := http.Get(ourl)
+	//fmt.Println(reader)
+	request, err := http.NewRequest(mentype, ourl, reader)
+	if err != nil {
+		return "",err
+	}
+	if dtype =="JSON" {
+		request.Header.Set("Content-Type", "application/json;charset=utf-8")
+	}
+
+
+	for key,item := range header{
+		request.Header.Set(key,item)
+	}
+
+	client := http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		return "",err
+	}
+	//utf8Reader := transform.NewReader(resp.Body,simplifiedchinese.GBK.NewDecoder())
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	//respBytes, err := ioutil.ReadAll(utf8Reader)
+	if err != nil {
+		return "",err
+	}
+	//byte数组直接转成string，优化内存
+
+	//utf8 := mahonia.NewDecoder("utf8").ConvertString(string(respBytes))
+	//ioutil.WriteFile("./output2.txt", respBytes, 0666) //写入文件(字节数组)
+	res := (*string)(unsafe.Pointer(&respBytes))
+	return *res,nil
 }
