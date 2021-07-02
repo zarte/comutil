@@ -60,9 +60,8 @@ func (a *Loger) DebugLog(wireteString string){
 		f, err = os.Create(a.path+filename)  //创建文件
 		//fmt.Println("文件不存在");
 	}
-
-
 	check(err)
+	defer f.Close()
 
 	wireteString = wireteString+"\r\n"
 	_,err = io.WriteString(f, wireteString) //写入文件(字符串)
