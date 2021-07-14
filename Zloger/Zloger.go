@@ -9,7 +9,7 @@
 	logers.DebugLog(filename,wireteString)
 
  */
-package Zloger
+package zloger
 
 import (
 	"os"
@@ -60,15 +60,14 @@ func (a *Loger) DebugLog(wireteString string){
 		f, err = os.Create(a.path+filename)  //创建文件
 		//fmt.Println("文件不存在");
 	}
+
+
 	check(err)
 	defer f.Close()
-
 	wireteString = wireteString+"\r\n"
-	_,err = io.WriteString(f, wireteString) //写入文件(字符串)
+	_,err = io.WriteString(f, time.Now().Format("2006-01-02 15:04:05") +"  "+ wireteString) //写入文件(字符串)
 	check(err)
 	//格式化用的日期是特定的，123（15）45 -.-lll
-	now_time := time.Now().Format("2006-01-02 15:04:05")
-	io.WriteString(f, now_time+"\r\n") //写入文件(字符串)
 	//fmt.Printf("写入 %d 个字节", n);
 	return
 }
@@ -91,7 +90,7 @@ func (a *Loger) CompleteLog(wireteString string){
 
 
 	check(err)
-
+	defer f.Close()
 	wireteString = wireteString+"\r\n"
 	_,err = io.WriteString(f, wireteString) //写入文件(字符串)
 	check(err)
@@ -117,16 +116,13 @@ func (a *Loger) InfoLog(wireteString string,extfilename string){
 		f, err = os.Create(a.path+filename)  //创建文件
 		//fmt.Println("文件不存在");
 	}
-
-
 	check(err)
-
+	defer f.Close()
 	wireteString = wireteString+"\r\n"
-	_,err = io.WriteString(f, wireteString) //写入文件(字符串)
+	_,err = io.WriteString(f, time.Now().Format("2006-01-02 15:04:05") +"  "+wireteString) //写入文件(字符串)
 	check(err)
 	//格式化用的日期是特定的，123（15）45 -.-lll
-	now_time := time.Now().Format("2006-01-02 15:04:05")
-	io.WriteString(f, now_time+"\r\n") //写入文件(字符串)
+
 	//fmt.Printf("写入 %d 个字节", n);
 
 
@@ -152,13 +148,10 @@ func (a *Loger) ErrorLog(wireteString string){
 
 
 	check(err)
-
+	defer f.Close()
 	wireteString = wireteString+"\r\n"
-	_,err = io.WriteString(f, wireteString) //写入文件(字符串)
+	_,err = io.WriteString(f, time.Now().Format("2006-01-02 15:04:05") +"  "+wireteString) //写入文件(字符串)
 	check(err)
-	//格式化用的日期是特定的，123（15）45 -.-lll
-	now_time := time.Now().Format("2006-01-02 15:04:05")
-	io.WriteString(f, now_time+"\r\n") //写入文件(字符串)
 	//fmt.Printf("写入 %d 个字节", n);
 	return
 }
