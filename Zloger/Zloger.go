@@ -9,7 +9,7 @@
 	logers.DebugLog(filename,wireteString)
 
  */
-package zloger
+package Zloger
 
 import (
 	"os"
